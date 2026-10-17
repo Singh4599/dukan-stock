@@ -34,10 +34,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Daily Packing Register
         </a>
-        <a class="nav-item" data-view="products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          All 28 Spices List
-        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -210,45 +206,6 @@
                   </tr>
                 </thead>
                 <tbody id="master-ledger-tbody">
-                  <!-- Filled via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- ── VIEW 3: ALL 28 PRODUCTS CATALOG & SUMMARY ── -->
-        <section id="view-products" class="app-view" style="display:none;">
-          <div class="table-card">
-            <div class="table-header-bar">
-              <div>
-                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">All 28 Spices Master Summary</h3>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Overview of all products with total inward, total packed, and current closing stock</p>
-              </div>
-              <div>
-                <button class="btn btn-secondary btn-sm" id="btn-export-products-catalog">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  Export Catalog
-                </button>
-              </div>
-            </div>
-
-            <div class="table-responsive">
-              <table class="excel-table" id="products-catalog-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Spice Product Name</th>
-                    <th>Batch Code</th>
-                    <th>Category</th>
-                    <th class="num-cell">Total Inward (KG)</th>
-                    <th class="num-cell">Total Packed (KG)</th>
-                    <th class="num-cell">Total Wastage (KG)</th>
-                    <th class="num-cell closing-highlight">Current Stock Remaining (KG)</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="products-catalog-tbody">
                   <!-- Filled via JS -->
                 </tbody>
               </table>
@@ -458,10 +415,6 @@
     <div class="mob-nav-item" data-view="ledger">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
       <span>Register</span>
-    </div>
-    <div class="mob-nav-item" data-view="products">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-      <span>All Spices</span>
     </div>
     <div class="mob-nav-item" id="mob-quick-add-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--brand-primary);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>

@@ -22,7 +22,6 @@ const dom = {
   views: {
     dashboard: document.getElementById("view-dashboard"),
     ledger: document.getElementById("view-ledger"),
-    products: document.getElementById("view-products"),
   },
   pageTitle: document.getElementById("page-title"),
 
@@ -57,9 +56,6 @@ const dom = {
   btnExportLedgerExcel: document.getElementById("btn-export-ledger-excel"),
   masterLedgerTbody: document.getElementById("master-ledger-tbody"),
 
-  // Products Catalog Table
-  btnExportProductsCatalog: document.getElementById("btn-export-products-catalog"),
-  productsCatalogTbody: document.getElementById("products-catalog-tbody"),
 
   // Entry Modal
   modalEntryOverlay: document.getElementById("modal-entry-overlay"),
@@ -418,51 +414,6 @@ function renderMasterLedger() {
   });
 }
 
-// ── RENDER PRODUCTS MASTER CATALOG ──
-function renderProductsCatalog() {
-  const rowsHtml = DUKAN_PRODUCTS.map((p, idx) => {
-    const prodEntries = allEntries.filter((e) => e.productId === p.id);
-    const totalInward = prodEntries.reduce((sum, e) => sum + (Number(e.inwardQty) || 0), 0);
-    const totalPacked = prodEntries.reduce((sum, e) => sum + (Number(e.totalPacked) || 0), 0);
-    const totalWastage = prodEntries.reduce((sum, e) => sum + (Number(e.wastage) || 0), 0);
-
-    // Latest closing balance
-    const currentStatus = getProductStatusForDate(p.id, currentDate);
-    const currentStock = currentStatus.closing;
-
-    return `
-      <tr>
-        <td style="color:#94A3B8; font-weight:600;">${idx + 1}</td>
-        <td style="font-weight:700;">${p.name}</td>
-        <td><span class="batch-pill">${p.batchCode}</span></td>
-        <td>
-          <span class="category-tag" style="background:${p.color}15; color:${p.color}; border:1px solid ${p.color}40;">
-            ${p.category}
-          </span>
-        </td>
-        <td class="num-cell" style="color:#2563EB; font-weight:700;">${totalInward.toFixed(2)}</td>
-        <td class="num-cell" style="color:#059669; font-weight:700;">${totalPacked.toFixed(2)}</td>
-        <td class="num-cell" style="color:#DC2626;">${totalWastage.toFixed(2)}</td>
-        <td class="num-cell closing-highlight" style="font-size:14px;">${currentStock.toFixed(2)}</td>
-        <td>
-          <div style="display:flex; gap:6px;">
-            <button class="btn btn-primary btn-sm btn-cat-pack" data-id="${p.id}">+ Entry</button>
-            <button class="btn btn-secondary btn-sm btn-cat-history" data-id="${p.id}">Log</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join("");
-
-  dom.productsCatalogTbody.innerHTML = rowsHtml;
-
-  dom.productsCatalogTbody.querySelectorAll(".btn-cat-pack").forEach((btn) => {
-    btn.addEventListener("click", () => openEntryModal(btn.dataset.id));
-  });
-  dom.productsCatalogTbody.querySelectorAll(".btn-cat-history").forEach((btn) => {
-    btn.addEventListener("click", () => openHistoryModal(btn.dataset.id));
-  });
-}
 
 // ── MODAL: OPEN ENTRY FORM ──
 function openEntryModal(preselectedProductId = null, existingEntry = null) {
@@ -716,32 +667,6 @@ function exportSingleProductExcel() {
   showToast(`Downloaded: ${fileName}`, "success");
 }
 
-function exportProductsCatalogExcel() {
-  const sheetData = DUKAN_PRODUCTS.map((p, idx) => {
-    const prodEntries = allEntries.filter((e) => e.productId === p.id);
-    const totalInward = prodEntries.reduce((sum, e) => sum + (Number(e.inwardQty) || 0), 0);
-    const totalPacked = prodEntries.reduce((sum, e) => sum + (Number(e.totalPacked) || 0), 0);
-    const totalWastage = prodEntries.reduce((sum, e) => sum + (Number(e.wastage) || 0), 0);
-    const status = getProductStatusForDate(p.id, currentDate);
-
-    return {
-      "S.No": idx + 1,
-      "Product Name": p.name,
-      "Batch Code / Lot No": p.batchCode,
-      "Category": p.category,
-      "Total Inward (KG)": totalInward,
-      "Total Packed (KG)": totalPacked,
-      "Total Wastage (KG)": totalWastage,
-      "Current Closing Stock (KG)": status.closing
-    };
-  });
-
-  const ws = XLSX.utils.json_to_sheet(sheetData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Dukan_Catalog");
-  XLSX.writeFile(wb, `Dukan_Products_Inventory_${currentDate}.xlsx`);
-  showToast("Catalog exported to Excel", "success");
-}
 
 // ── TOAST HELPER ──
 function showToast(message, type = "success") {
@@ -780,9 +705,6 @@ function switchView(viewName) {
   } else if (viewName === "ledger") {
     dom.pageTitle.textContent = "Daily Packing Register (Sheet)";
     renderMasterLedger();
-  } else if (viewName === "products") {
-    dom.pageTitle.textContent = "All 28 Spices Master Summary";
-    renderProductsCatalog();
   }
 }
 
@@ -868,7 +790,6 @@ function init() {
   dom.mobQuickAddBtn.addEventListener("click", () => openEntryModal());
   dom.btnExportExcel.addEventListener("click", exportLedgerToExcel);
   dom.btnExportLedgerExcel.addEventListener("click", exportLedgerToExcel);
-  dom.btnExportProductsCatalog.addEventListener("click", exportProductsCatalogExcel);
   dom.btnExportSingleProductExcel.addEventListener("click", exportSingleProductExcel);
 
   // Modal Close buttons
@@ -993,7 +914,6 @@ function init() {
     allEntries = entries;
     renderDashboard();
     renderMasterLedger();
-    renderProductsCatalog();
     if (historyProductId) {
       openHistoryModal(historyProductId);
     }
