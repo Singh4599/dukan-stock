@@ -269,17 +269,17 @@ function renderDashboard() {
 
         <div class="stock-stats-grid">
           <div class="stock-stat-item">
-            <span class="stock-stat-label">Pehle Ka</span>
+            <span class="stock-stat-label">Opening</span>
             <span class="stock-stat-val">${status.opening.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span></span>
           </div>
           <div class="stock-stat-item">
-            <span class="stock-stat-label">Naya Aaya</span>
+            <span class="stock-stat-label">Inward</span>
             <span class="stock-stat-val" style="color:${status.inward > 0 ? "#2563EB" : "inherit"};">
               +${status.inward.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span>
             </span>
           </div>
           <div class="stock-stat-item">
-            <span class="stock-stat-label">Pack Hua</span>
+            <span class="stock-stat-label">Packed</span>
             <span class="stock-stat-val" style="color:${status.totalPacked > 0 ? "#059669" : "inherit"};">
               -${status.totalPacked.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span>
             </span>
@@ -291,7 +291,7 @@ function renderDashboard() {
             </span>
           </div>
           <div class="stock-stat-item" style="grid-column: span 2;">
-            <span class="stock-stat-label">Abhi Bacha (Closing)</span>
+            <span class="stock-stat-label">Closing Stock</span>
             <span class="stock-stat-val closing">
               ${status.closing.toFixed(2)} <span style="font-size:11px; font-weight:700;">KG</span>
             </span>
@@ -308,17 +308,17 @@ function renderDashboard() {
             ${status.p500 > 0 ? `<span class="pack-chip">500g: <strong>${status.p500}</strong></span>` : ""}
             ${status.p1000 > 0 ? `<span class="pack-chip">1kg: <strong>${status.p1000}</strong></span>` : ""}
           `
-              : `<span class="pack-chip empty">Aaj packing nahi hui</span>`
+              : `<span class="pack-chip empty">No packing done today</span>`
           }
         </div>
 
         <div class="card-footer-actions">
           <button class="btn btn-primary btn-sm btn-card-pack" data-product-id="${p.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            ${status.hasEntry ? "Change Entry" : "+ Entry Dalein"}
+            ${status.hasEntry ? "Edit Entry" : "+ Log Packing"}
           </button>
           <button class="btn btn-secondary btn-sm btn-card-history" data-product-id="${p.id}" title="View chronological batches">
-            Records
+            History
           </button>
         </div>
       </div>
@@ -492,11 +492,11 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
   if (existingEntry) {
     editingEntryId = existingEntry.id;
     dom.entryId.value = existingEntry.id;
-    dom.modalEntryTitle.textContent = "Edit Packing Entry (पैकिंग बदलें)";
+    dom.modalEntryTitle.textContent = "Edit Daily Packing Entry";
     dom.formProductSelect.value = existingEntry.productId;
     dom.formDateInput.value = existingEntry.date;
     dom.formOpeningInput.value = existingEntry.openingBalance;
-    dom.cfStatusLabel.textContent = "Pehle ka recorded opening balance";
+    dom.cfStatusLabel.textContent = "Recorded opening stock for this date";
     dom.formSourceSelect.value = existingEntry.source || "Cold Storage";
     dom.formBatchInput.value = existingEntry.batchNo || "";
     dom.formInwardInput.value = existingEntry.inwardQty || 0;
@@ -511,7 +511,7 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
   } else {
     editingEntryId = null;
     dom.entryId.value = "";
-    dom.modalEntryTitle.textContent = "Add Daily Packing Entry (दुकान पैकिंग एंट्री)";
+    dom.modalEntryTitle.textContent = "Add Daily Packing Entry";
     dom.formDateInput.value = currentDate;
 
     if (preselectedProductId) {
@@ -548,9 +548,9 @@ function handleProductOrDateChange() {
     const cf = getAutoCarryForward(allEntries, productId, targetDate);
     dom.formOpeningInput.value = cf.openingBalance.toFixed(2);
     if (cf.fromDate) {
-      dom.cfStatusLabel.textContent = `🔄 Pichle din (${cf.fromDate}) ka closing stock (${cf.openingBalance.toFixed(2)} KG) apne aap aa gaya`;
+      dom.cfStatusLabel.textContent = `🔄 Auto-carried forward from ${cf.fromDate} closing stock (${cf.openingBalance.toFixed(2)} KG)`;
     } else {
-      dom.cfStatusLabel.textContent = `🌱 Starting stock (0.00 KG) - badalna ho to 'Change' dabayein`;
+      dom.cfStatusLabel.textContent = `🌱 Initial opening stock (0.00 KG) - click 'Change' to edit`;
     }
   }
 
@@ -925,7 +925,7 @@ function init() {
     if (isOpeningOverridden) {
       dom.formOpeningInput.focus();
       dom.btnToggleOverrideOpening.textContent = "Lock";
-      dom.cfStatusLabel.textContent = "⚠️ Manual opening stock typing chalu hai";
+      dom.cfStatusLabel.textContent = "⚠️ Manual opening stock edit enabled";
     } else {
       dom.btnToggleOverrideOpening.textContent = "Change";
       handleProductOrDateChange();

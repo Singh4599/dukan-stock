@@ -32,7 +32,7 @@
         </a>
         <a class="nav-item" data-view="ledger">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Packing Register (Sheet)
+          Daily Packing Register
         </a>
         <a class="nav-item" data-view="products">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -43,7 +43,7 @@
       <div class="sidebar-footer">
         <div class="live-badge">
           <span class="live-dot"></span>
-          <span>🟢 Online & Auto Synced</span>
+          <span>Online & Auto-Synced</span>
         </div>
       </div>
     </aside>
@@ -80,7 +80,7 @@
           </button>
           <button class="btn btn-primary" id="btn-open-new-entry">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>+ Add Packing Entry</span>
+            <span>+ New Packing Entry</span>
           </button>
         </div>
       </header>
@@ -91,16 +91,16 @@
         <!-- ── VIEW 1: OVERVIEW DASHBOARD ── -->
         <section id="view-dashboard" class="app-view">
           
-          <!-- KPI ROW (SIMPLE & CLEAR TERMS) -->
+          <!-- KPI ROW (CLEAN ENGLISH) -->
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-icon crimson">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
               </div>
               <div class="kpi-details">
-                <span class="kpi-label">Total Spices</span>
+                <span class="kpi-label">Total Products</span>
                 <span class="kpi-value">28</span>
-                <span class="kpi-sub">Dukan Product Items</span>
+                <span class="kpi-sub">Dukan Spices Catalog</span>
               </div>
             </div>
 
@@ -109,9 +109,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               </div>
               <div class="kpi-details">
-                <span class="kpi-label">Naya Maal Aaya (Inward)</span>
+                <span class="kpi-label">New Stock Received (Inward)</span>
                 <span class="kpi-value" id="kpi-today-inward">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">New raw spice bags today</span>
+                <span class="kpi-sub">Raw spice bags received today</span>
               </div>
             </div>
 
@@ -120,7 +120,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
               <div class="kpi-details">
-                <span class="kpi-label">Pack Hua (Packed)</span>
+                <span class="kpi-label">Packed Today</span>
                 <span class="kpi-value" id="kpi-today-packed">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
                 <span class="kpi-sub" id="kpi-today-pcs">0 packets packed today</span>
               </div>
@@ -133,7 +133,7 @@
               <div class="kpi-details">
                 <span class="kpi-label">Wastage / Loss</span>
                 <span class="kpi-value" id="kpi-today-wastage">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">Spillage / packing loss</span>
+                <span class="kpi-sub">Spillage & packing loss</span>
               </div>
             </div>
 
@@ -142,9 +142,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               </div>
               <div class="kpi-details">
-                <span class="kpi-label">Abhi Total Bacha (Closing)</span>
+                <span class="kpi-label">Total Stock Remaining</span>
                 <span class="kpi-value" id="kpi-total-closing">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">Available balance in stock</span>
+                <span class="kpi-sub">Total closing balance sum</span>
               </div>
             </div>
           </div>
@@ -153,7 +153,7 @@
           <div class="toolbar-wrap">
             <div class="search-box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="search-products-input" class="search-input" placeholder="Search spice name or batch code (e.g. Haldi, GTP-1026)..." />
+              <input type="text" id="search-products-input" class="search-input" placeholder="Search by spice name or batch code (e.g. Turmeric, GTP-1026)..." />
             </div>
 
             <div class="category-chips" id="category-chips-wrap">
@@ -172,7 +172,7 @@
           <div class="table-card">
             <div class="table-header-bar">
               <div>
-                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Daily Packaging Register (दैनिक पैकिंग रजिस्टर)</h3>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Daily Packaging Register</h3>
                 <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Complete 15-column date-wise register with automatic carry-forward calculation</p>
               </div>
               <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -196,18 +196,18 @@
                   <tr>
                     <th>#</th>
                     <th>Date</th>
-                    <th>Spice Name & Batch</th>
-                    <th class="num-cell">Pehle Ka (Opening KG)</th>
-                    <th>Source (Kaha Se Aaya)</th>
+                    <th>Spice Product & Batch</th>
+                    <th class="num-cell">Opening (KG)</th>
+                    <th>Source</th>
                     <th>Lot / Batch No.</th>
-                    <th class="num-cell">Naya Aaya (Inward KG)</th>
+                    <th class="num-cell">Inward (KG)</th>
                     <th class="num-cell">100g (Pcs)</th>
                     <th class="num-cell">200g (Pcs)</th>
                     <th class="num-cell">500g (Pcs)</th>
                     <th class="num-cell">1kg (Pcs)</th>
-                    <th class="num-cell">Total Pack Hua (KG)</th>
+                    <th class="num-cell">Total Packed (KG)</th>
                     <th class="num-cell">Wastage (KG)</th>
-                    <th class="num-cell closing-highlight">Abhi Bacha (Closing KG)</th>
+                    <th class="num-cell closing-highlight">Closing (KG)</th>
                     <th>Packed By</th>
                     <th>Checked By</th>
                     <th>Remarks</th>
@@ -246,10 +246,10 @@
                     <th>Spice Product Name</th>
                     <th>Batch Code</th>
                     <th>Category</th>
-                    <th class="num-cell">Total Aaya (Inward KG)</th>
-                    <th class="num-cell">Total Pack Hua (KG)</th>
+                    <th class="num-cell">Total Inward (KG)</th>
+                    <th class="num-cell">Total Packed (KG)</th>
                     <th class="num-cell">Total Wastage (KG)</th>
-                    <th class="num-cell closing-highlight">Current Stock Bacha (KG)</th>
+                    <th class="num-cell closing-highlight">Current Stock Remaining (KG)</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -265,11 +265,11 @@
     </div>
   </div>
 
-  <!-- ── MODAL: ADD / EDIT PACKAGING ENTRY (SIMPLE & FRIENDLY WORDING) ── -->
+  <!-- ── MODAL: ADD / EDIT PACKAGING ENTRY (PURE ENGLISH) ── -->
   <div class="modal-overlay" id="modal-entry-overlay">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title" id="modal-entry-title">Add Packing Entry (दुकान पैकिंग एंट्री)</h3>
+        <h3 class="modal-title" id="modal-entry-title">Add Daily Packing Entry</h3>
         <button class="modal-close-btn" id="modal-entry-close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -281,7 +281,7 @@
         <!-- ROW 1: Product & Date -->
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Spice Product (मसाला चुनें) *</label>
+            <label class="form-label">Select Spice Product *</label>
             <select id="form-product-select" class="form-select" required>
               <option value="">Select a spice product...</option>
               <!-- Filled via JS -->
@@ -289,7 +289,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Date (तारीख) *</label>
+            <label class="form-label">Entry Date *</label>
             <input type="date" id="form-date-input" class="form-input" required />
           </div>
         </div>
@@ -297,8 +297,8 @@
         <!-- ROW 2: Carry-forward Opening Balance Box -->
         <div class="carry-forward-callout">
           <div style="display:flex; flex-direction:column; gap:2px;">
-            <span style="font-size:11.5px; font-weight:700; color:#1E40AF; text-transform:uppercase;">Pehle Ka Stock (Opening Balance KG)</span>
-            <span class="cf-text" id="cf-status-label">🔄 Pichle din ka bacha hua stock apne aap aa gaya</span>
+            <span style="font-size:11.5px; font-weight:700; color:#1E40AF; text-transform:uppercase;">Opening Balance (KG)</span>
+            <span class="cf-text" id="cf-status-label">🔄 Auto-carried forward from previous day's closing stock</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <input type="number" step="0.01" id="form-opening-input" class="form-input" style="width:110px; font-weight:800; text-align:right;" required />
@@ -309,14 +309,14 @@
         <!-- ROW 3: Source, Batch / Lot No, Inward Qty -->
         <div class="form-row-3">
           <div class="form-group">
-            <label class="form-label">Maal Kaha Se Aaya? (Source) *</label>
+            <label class="form-label">Source *</label>
             <select id="form-source-select" class="form-select" required>
-              <option value="Cold Storage">Cold Storage (कोल्ड स्टोरेज)</option>
-              <option value="Market">Market (मार्केट)</option>
-              <option value="Direct Supplier">Direct Supplier (सप्लायर)</option>
-              <option value="Warehouse Inward">Warehouse Inward (गोदाम)</option>
-              <option value="Factory Transfer">Factory Transfer (फैक्ट्री)</option>
-              <option value="Other">Other (अन्य)</option>
+              <option value="Cold Storage">Cold Storage</option>
+              <option value="Market">Market</option>
+              <option value="Direct Supplier">Direct Supplier</option>
+              <option value="Warehouse Inward">Warehouse Inward</option>
+              <option value="Factory Transfer">Factory Transfer</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -326,16 +326,16 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Naya Maal Kitna Aaya? (Inward KG)</label>
-            <input type="number" step="0.01" min="0" id="form-inward-input" class="form-input" placeholder="0.00" value="0" title="Bada bag kitna aaya, agar nahi aaya to 0 likhein" />
+            <label class="form-label">New Stock Received (Inward KG)</label>
+            <input type="number" step="0.01" min="0" id="form-inward-input" class="form-input" placeholder="0.00" value="0" title="Weight of raw bags received; enter 0 if none" />
           </div>
         </div>
 
         <!-- ROW 4: Packaging Sizes Breakdown -->
         <div class="form-group">
           <label class="form-label" style="margin-bottom:4px;">
-            <span>Aaj Kitne Packets Bane? (Packing Pcs)</span>
-            <span style="font-size:11px; font-weight:500; color:var(--text-muted);">Packets daalein, total KG apne aap banega</span>
+            <span>Packets Packed Today</span>
+            <span style="font-size:11px; font-weight:500; color:var(--text-muted);">Enter packet count; total weight calculates automatically</span>
           </label>
           <div class="form-row-4">
             <div class="form-group">
@@ -366,20 +366,20 @@
 
         <!-- ROW 5: Wastage -->
         <div class="form-group">
-          <label class="form-label">Wastage / Gir Gaya (KG)</label>
+          <label class="form-label">Wastage / Loss (KG)</label>
           <input type="number" step="0.01" min="0" id="form-wastage-input" class="form-input" placeholder="0.00" value="0" />
         </div>
 
         <!-- DYNAMIC LIVE FORMULA & CLOSING BALANCE CALCULATION BOX -->
         <div class="calculation-preview-card">
           <div class="calc-formula-row">
-            <span><strong>Formula:</strong> (Pehle Ka + Naya Aaya) − Pack Hua − Wastage = Stock Bacha</span>
-            <span id="calc-summary-text" style="font-weight:700;">(0 + 0) − 0 − 0 = 0 KG</span>
+            <span><strong>Formula:</strong> (Opening + Inward) − Packed − Wastage = Closing Stock</span>
+            <span id="calc-summary-text" style="font-weight:700;">(0 + 0) − 0 − 0 = 0.00 KG</span>
           </div>
           <div class="calc-closing-result">
             <div>
-              <div class="res-label">Ab Kitna Stock Bacha (Closing Balance)</div>
-              <div style="font-size:11px; color:var(--text-muted);">Ye kal ke din apne aap Opening ban jayega</div>
+              <div class="res-label">Calculated Closing Balance</div>
+              <div style="font-size:11px; color:var(--text-muted);">This will automatically become tomorrow's opening balance</div>
             </div>
             <div class="res-val" id="calc-closing-val">0.00 KG</div>
           </div>
@@ -388,24 +388,24 @@
         <!-- ROW 6: Signatures & Remarks -->
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Packing Kisne Ki? (Packed By Name) *</label>
+            <label class="form-label">Packed By (Name & Signature) *</label>
             <input type="text" id="form-packed-by-input" class="form-input" placeholder="e.g. Ramesh" required />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Check Kisne Kiya? (Supervisor / Checked By) *</label>
+            <label class="form-label">Checked By (Supervisor / Checked By) *</label>
             <input type="text" id="form-checked-by-input" class="form-input" placeholder="e.g. Dhruv" required />
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Notes / Remarks (Optional)</label>
-          <textarea id="form-remarks-input" class="form-textarea" rows="2" placeholder="e.g. Badhiya quality, clean bag, normal moisture..."></textarea>
+          <label class="form-label">Remarks (Optional)</label>
+          <textarea id="form-remarks-input" class="form-textarea" rows="2" placeholder="e.g. Good lot, sealed securely, normal moisture..."></textarea>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-entry">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="btn-submit-entry">Save Entry (सेव करें)</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-entry">Save Entry to Cloud</button>
         </div>
       </form>
     </div>
@@ -416,7 +416,7 @@
     <div class="modal-card" style="max-width:850px;">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title" id="history-modal-product-title">Product History</h3>
+          <h3 class="modal-title" id="history-modal-product-title">Product Packaging History</h3>
           <span id="history-modal-batch-pill" class="batch-pill" style="margin-top:4px; display:inline-block;">GTP-1026</span>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
@@ -435,11 +435,11 @@
                 <th>Date</th>
                 <th>Source</th>
                 <th>Batch Code</th>
-                <th class="num-cell">Pehle Ka</th>
-                <th class="num-cell">Aaya</th>
-                <th class="num-cell">Pack Hua</th>
+                <th class="num-cell">Opening</th>
+                <th class="num-cell">Inward</th>
+                <th class="num-cell">Packed</th>
                 <th class="num-cell">Wastage</th>
-                <th class="num-cell closing-highlight">Bacha (Closing)</th>
+                <th class="num-cell closing-highlight">Closing Stock</th>
                 <th>Packed By</th>
                 <th>Checked By</th>
                 <th>Action</th>
