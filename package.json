@@ -1,0 +1,9 @@
+{
+  "name": "dukan-stock-manager",
+  "version": "1.0.0",
+  "description": "365 Spicery - Dukan Packaging & Stock Management Dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "npx -y serve . -p 3001"
+  }
+}

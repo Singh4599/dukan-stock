@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>365 Spicery — Dukan Stock & Packaging Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- SheetJS for 1-Click Excel Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ── SIDEBAR (DESKTOP) ── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="assets/logo.jpg" alt="365 Spicery Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div class="brand-text-wrap">
+          <h1>365 Spicery</h1>
+          <span>Dukan Stock Manager</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview Dashboard
+        </a>
+        <a class="nav-item" data-view="ledger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Daily Packing Register
+        </a>
+        <a class="nav-item" data-view="products">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          All 28 Products
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span>Firebase Cloud Live Sync</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN WRAPPER ── -->
+    <div class="main-wrapper">
+      
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 class="page-title" id="page-title">Overview Dashboard</h2>
+          
+          <!-- DATE NAVIGATOR -->
+          <div class="date-navigator">
+            <button class="date-nav-btn" id="btn-prev-day" title="Previous Day">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="date-display-pill" id="date-display" title="Click to pick custom date">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="date-text">Loading...</span>
+              <input type="date" id="date-picker-hidden" style="position:absolute; opacity:0; pointer-events:none; width:0; height:0;" />
+            </div>
+            <button class="date-nav-btn" id="btn-next-day" title="Next Day">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="btn-today-pill" id="btn-jump-today" title="Jump to Today">Today</button>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" id="btn-export-excel" title="Download Excel (.xlsx)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export Excel</span>
+          </button>
+          <button class="btn btn-primary" id="btn-open-new-entry">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>+ New Packaging Entry</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <main class="content-body">
+        
+        <!-- ── VIEW 1: OVERVIEW DASHBOARD ── -->
+        <section id="view-dashboard" class="app-view">
+          
+          <!-- KPI ROW -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon crimson">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              </div>
+              <div class="kpi-details">
+                <span class="kpi-label">Total Products</span>
+                <span class="kpi-value">28</span>
+                <span class="kpi-sub">Dukan Spices Catalog</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="kpi-details">
+                <span class="kpi-label">Today's Inward</span>
+                <span class="kpi-value" id="kpi-today-inward">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
+                <span class="kpi-sub">Raw spice bags received</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="kpi-details">
+                <span class="kpi-label">Today's Packed</span>
+                <span class="kpi-value" id="kpi-today-packed">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
+                <span class="kpi-sub" id="kpi-today-pcs">0 total packets packed</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div class="kpi-details">
+                <span class="kpi-label">Today's Wastage</span>
+                <span class="kpi-value" id="kpi-today-wastage">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
+                <span class="kpi-sub">Spillage & packing loss</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </div>
+              <div class="kpi-details">
+                <span class="kpi-label">Total Stock On Hand</span>
+                <span class="kpi-value" id="kpi-total-closing">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
+                <span class="kpi-sub">Closing balance sum</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOOLBAR: SEARCH & CATEGORY CHIPS -->
+          <div class="toolbar-wrap">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-products-input" class="search-input" placeholder="Search by product name or batch code..." />
+            </div>
+
+            <div class="category-chips" id="category-chips-wrap">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- PRODUCT CARDS GRID -->
+          <div class="products-grid" id="products-cards-grid">
+            <!-- Rendered dynamically via JS -->
+          </div>
+        </section>
+
+        <!-- ── VIEW 2: MASTER EXCEL REGISTER (LEDGER) ── -->
+        <section id="view-ledger" class="app-view" style="display:none;">
+          <div class="table-card">
+            <div class="table-header-bar">
+              <div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Daily Packaging & Stock Register</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Complete 15-column client batch ledger format with auto carry-forward tracking</p>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <select id="ledger-filter-product" class="form-select" style="width:200px; font-size:12px;">
+                  <option value="ALL">All Products (28)</option>
+                </select>
+                <select id="ledger-filter-date" class="form-select" style="width:160px; font-size:12px;">
+                  <option value="SELECTED">Selected Date Only</option>
+                  <option value="ALL" selected>All Dates (History)</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" id="btn-export-ledger-excel">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export to Excel (.xlsx)
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="excel-table" id="master-ledger-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Product Name & Batch</th>
+                    <th class="num-cell">Opening (KG)</th>
+                    <th>Source</th>
+                    <th>Supplier Batch / Lot</th>
+                    <th class="num-cell">Inward (KG)</th>
+                    <th class="num-cell">100g (Pcs)</th>
+                    <th class="num-cell">200g (Pcs)</th>
+                    <th class="num-cell">500g (Pcs)</th>
+                    <th class="num-cell">1kg (Pcs)</th>
+                    <th class="num-cell">Total Packed (KG)</th>
+                    <th class="num-cell">Wastage (KG)</th>
+                    <th class="num-cell closing-highlight">Closing (KG)</th>
+                    <th>Packed By</th>
+                    <th>Checked By</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="master-ledger-tbody">
+                  <!-- Filled via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── VIEW 3: ALL 28 PRODUCTS CATALOG & SUMMARY ── -->
+        <section id="view-products" class="app-view" style="display:none;">
+          <div class="table-card">
+            <div class="table-header-bar">
+              <div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Dukan Products Master Inventory</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Overview of all 28 spice products, batch codes, and cumulative inventory stats</p>
+              </div>
+              <div>
+                <button class="btn btn-secondary btn-sm" id="btn-export-products-catalog">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Catalog
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="excel-table" id="products-catalog-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Batch Code / Lot</th>
+                    <th>Category</th>
+                    <th class="num-cell">Total Inward (KG)</th>
+                    <th class="num-cell">Total Packed (KG)</th>
+                    <th class="num-cell">Total Wastage (KG)</th>
+                    <th class="num-cell closing-highlight">Current Stock (KG)</th>
+                    <th>Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="products-catalog-tbody">
+                  <!-- Filled via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ── MODAL: ADD / EDIT PACKAGING ENTRY ── -->
+  <div class="modal-overlay" id="modal-entry-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-entry-title">New Packaging & Inward Entry</h3>
+        <button class="modal-close-btn" id="modal-entry-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <form id="entry-form" class="modal-body">
+        <input type="hidden" id="entry-id" />
+
+        <!-- ROW 1: Product & Date -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <select id="form-product-select" class="form-select" required>
+              <option value="">Select a spice product...</option>
+              <!-- Filled via JS -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Entry Date *</label>
+            <input type="date" id="form-date-input" class="form-input" required />
+          </div>
+        </div>
+
+        <!-- ROW 2: Carry-forward Opening Balance Box -->
+        <div class="carry-forward-callout">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span style="font-size:11px; font-weight:700; color:#1E40AF; text-transform:uppercase;">Opening Balance / Carry Forward (KG)</span>
+            <span class="cf-text" id="cf-status-label">🔄 Auto-fetched from previous day closing</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="number" step="0.01" id="form-opening-input" class="form-input" style="width:110px; font-weight:800; text-align:right;" required />
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-override-opening" title="Click to manually edit opening balance">Override</button>
+          </div>
+        </div>
+
+        <!-- ROW 3: Source, Batch / Lot No, Inward Qty -->
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Source *</label>
+            <select id="form-source-select" class="form-select" required>
+              <option value="Cold Storage">Cold Storage</option>
+              <option value="Market">Market</option>
+              <option value="Direct Supplier">Direct Supplier</option>
+              <option value="Warehouse Inward">Warehouse Inward</option>
+              <option value="Factory Transfer">Factory Transfer</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Supplier Batch / Lot No. *</label>
+            <input type="text" id="form-batch-input" class="form-input" placeholder="e.g. GTP-1026" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Inward Quantity (KG)</label>
+            <input type="number" step="0.01" min="0" id="form-inward-input" class="form-input" placeholder="0.00" value="0" />
+          </div>
+        </div>
+
+        <!-- ROW 4: Packaging Sizes Breakdown -->
+        <div class="form-group">
+          <label class="form-label" style="margin-bottom:4px;">
+            <span>Packing Output Breakdown (Pcs)</span>
+            <span style="font-size:11px; font-weight:500; color:var(--text-muted);">Total KG auto-calculates in real time</span>
+          </label>
+          <div class="form-row-4">
+            <div class="form-group">
+              <label style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">100g (Pcs)</label>
+              <input type="number" min="0" step="1" id="form-p100-input" class="form-input" placeholder="0" value="0" />
+              <span id="label-kg-100" style="font-size:10.5px; color:#2563EB; font-weight:600;">= 0.00 KG</span>
+            </div>
+
+            <div class="form-group">
+              <label style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">200g (Pcs)</label>
+              <input type="number" min="0" step="1" id="form-p200-input" class="form-input" placeholder="0" value="0" />
+              <span id="label-kg-200" style="font-size:10.5px; color:#2563EB; font-weight:600;">= 0.00 KG</span>
+            </div>
+
+            <div class="form-group">
+              <label style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">500g (Pcs)</label>
+              <input type="number" min="0" step="1" id="form-p500-input" class="form-input" placeholder="0" value="0" />
+              <span id="label-kg-500" style="font-size:10.5px; color:#2563EB; font-weight:600;">= 0.00 KG</span>
+            </div>
+
+            <div class="form-group">
+              <label style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">1kg (Pcs)</label>
+              <input type="number" min="0" step="1" id="form-p1000-input" class="form-input" placeholder="0" value="0" />
+              <span id="label-kg-1000" style="font-size:10.5px; color:#2563EB; font-weight:600;">= 0.00 KG</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 5: Wastage -->
+        <div class="form-group">
+          <label class="form-label">Wastage (KG)</label>
+          <input type="number" step="0.01" min="0" id="form-wastage-input" class="form-input" placeholder="0.00" value="0" />
+        </div>
+
+        <!-- DYNAMIC LIVE FORMULA & CLOSING BALANCE CALCULATION BOX -->
+        <div class="calculation-preview-card">
+          <div class="calc-formula-row">
+            <span><strong>Formula:</strong> Opening + Inward − Total Packed − Wastage = Closing</span>
+            <span id="calc-summary-text" style="font-weight:700;">0 + 0 − 0 − 0 = 0 KG</span>
+          </div>
+          <div class="calc-closing-result">
+            <div>
+              <div class="res-label">Calculated Closing Balance</div>
+              <div style="font-size:11px; color:var(--text-muted);">Will automatically carry forward to next day</div>
+            </div>
+            <div class="res-val" id="calc-closing-val">0.00 KG</div>
+          </div>
+        </div>
+
+        <!-- ROW 6: Signatures & Remarks -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Packed By – Name & Signature *</label>
+            <input type="text" id="form-packed-by-input" class="form-input" placeholder="e.g. Ramesh" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Checked By – Name & Signature *</label>
+            <input type="text" id="form-checked-by-input" class="form-input" placeholder="e.g. Supervisor Dhruv" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Remarks</label>
+          <textarea id="form-remarks-input" class="form-textarea" rows="2" placeholder="e.g. Clean quality, sealed well, standard moisture..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-entry">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-entry">Save Entry to Cloud</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── MODAL: PRODUCT HISTORY / LEDGER DRAWER ── -->
+  <div class="modal-overlay" id="modal-history-overlay">
+    <div class="modal-card" style="max-width:850px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="history-modal-product-title">Product History</h3>
+          <span id="history-modal-batch-pill" class="batch-pill" style="margin-top:4px; display:inline-block;">GTP-1026</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="btn-export-single-product-excel">Export Product Log</button>
+          <button class="modal-close-btn" id="modal-history-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding:0;">
+        <div class="table-responsive">
+          <table class="excel-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Supplier Batch</th>
+                <th class="num-cell">Opening</th>
+                <th class="num-cell">Inward</th>
+                <th class="num-cell">Packed</th>
+                <th class="num-cell">Wastage</th>
+                <th class="num-cell closing-highlight">Closing</th>
+                <th>Packed By</th>
+                <th>Checked By</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-modal-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MOBILE BOTTOM NAVIGATION BAR ── -->
+  <nav class="mobile-bottom-nav">
+    <div class="mob-nav-item active" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Overview</span>
+    </div>
+    <div class="mob-nav-item" data-view="ledger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      <span>Register</span>
+    </div>
+    <div class="mob-nav-item" data-view="products">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <span>Products</span>
+    </div>
+    <div class="mob-nav-item" id="mob-quick-add-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--brand-primary);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span style="color:var(--brand-primary); font-weight:700;">+ Entry</span>
+    </div>
+  </nav>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- MAIN APP MODULE SCRIPT -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
