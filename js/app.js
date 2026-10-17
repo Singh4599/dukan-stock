@@ -46,10 +46,10 @@ const dom = {
   kpiTodayWastage: document.getElementById("kpi-today-wastage"),
   kpiTotalClosing: document.getElementById("kpi-total-closing"),
 
-  // Dashboard Toolbar & Cards
+  // Dashboard Toolbar & Table
   searchProductsInput: document.getElementById("search-products-input"),
   categoryChipsWrap: document.getElementById("category-chips-wrap"),
-  productsCardsGrid: document.getElementById("products-cards-grid"),
+  dashboardStockTbody: document.getElementById("dashboard-stock-tbody"),
 
   // Master Ledger Table
   ledgerFilterProduct: document.getElementById("ledger-filter-product"),
@@ -240,8 +240,8 @@ function renderDashboard() {
     return matchesCategory && matchesSearch;
   });
 
-  // Calculate totals and render cards
-  const cardsHtml = filteredProducts.map((p) => {
+  // Calculate totals and render table rows
+  const rowsHtml = filteredProducts.map((p, idx) => {
     const status = getProductStatusForDate(p.id, currentDate);
 
     // Sum overall totals across all 28 products for this date
@@ -254,91 +254,73 @@ function renderDashboard() {
     totalClosingSum += status.closing;
 
     const hasPacking = status.p100 > 0 || status.p200 > 0 || status.p500 > 0 || status.p1000 > 0;
+    const packBreakdownStr = hasPacking
+      ? [
+          status.p100 > 0 ? `100g:${status.p100}` : "",
+          status.p200 > 0 ? `200g:${status.p200}` : "",
+          status.p500 > 0 ? `500g:${status.p500}` : "",
+          status.p1000 > 0 ? `1kg:${status.p1000}` : ""
+        ].filter(Boolean).join(" • ")
+      : "";
 
     return `
-      <div class="product-card" data-product-id="${p.id}">
-        <div class="product-card-header">
-          <div>
-            <h4 class="product-title">${p.name}</h4>
-            <span class="category-tag" style="background:${p.color}15; color:${p.color}; border:1px solid ${p.color}40;">
-              ${p.category}
-            </span>
+      <tr>
+        <td style="color:#94A3B8; font-weight:600;">${idx + 1}</td>
+        <td style="font-weight:700; color:var(--text-main); font-size:13px;">${p.name}</td>
+        <td><span class="batch-pill">${status.batchNo}</span></td>
+        <td>
+          <span class="category-tag" style="background:${p.color}15; color:${p.color}; border:1px solid ${p.color}40;">
+            ${p.category}
+          </span>
+        </td>
+        <td class="num-cell" style="font-weight:600;">${status.opening.toFixed(2)}</td>
+        <td class="num-cell" style="color:${status.inward > 0 ? "#2563EB" : "inherit"}; font-weight:${status.inward > 0 ? "700" : "500"};">
+          ${status.inward > 0 ? "+" : ""}${status.inward.toFixed(2)}
+        </td>
+        <td class="num-cell" style="color:${status.totalPacked > 0 ? "#059669" : "inherit"}; font-weight:${status.totalPacked > 0 ? "700" : "500"};">
+          <div>${status.totalPacked > 0 ? "-" : ""}${status.totalPacked.toFixed(2)}</div>
+          ${packBreakdownStr ? `<div style="font-size:10.5px; color:#16A34A; font-weight:600;">${packBreakdownStr}</div>` : ""}
+        </td>
+        <td class="num-cell" style="color:${status.wastage > 0 ? "#DC2626" : "inherit"};">
+          ${status.wastage.toFixed(2)}
+        </td>
+        <td class="num-cell closing-highlight" style="font-size:14px; font-weight:800;">
+          ${status.closing.toFixed(2)}
+        </td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-primary btn-sm btn-row-pack" data-product-id="${p.id}">
+              ${status.hasEntry ? "Edit Entry" : "+ Log Packing"}
+            </button>
+            <button class="btn btn-secondary btn-sm btn-row-history" data-product-id="${p.id}" title="View chronological batches">
+              History
+            </button>
           </div>
-          <span class="batch-pill" title="Default Batch Code">${status.batchNo}</span>
-        </div>
-
-        <div class="stock-stats-grid">
-          <div class="stock-stat-item">
-            <span class="stock-stat-label">Opening</span>
-            <span class="stock-stat-val">${status.opening.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span></span>
-          </div>
-          <div class="stock-stat-item">
-            <span class="stock-stat-label">Inward</span>
-            <span class="stock-stat-val" style="color:${status.inward > 0 ? "#2563EB" : "inherit"};">
-              +${status.inward.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span>
-            </span>
-          </div>
-          <div class="stock-stat-item">
-            <span class="stock-stat-label">Packed</span>
-            <span class="stock-stat-val" style="color:${status.totalPacked > 0 ? "#059669" : "inherit"};">
-              -${status.totalPacked.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span>
-            </span>
-          </div>
-          <div class="stock-stat-item">
-            <span class="stock-stat-label">Wastage</span>
-            <span class="stock-stat-val" style="color:${status.wastage > 0 ? "#DC2626" : "inherit"};">
-              ${status.wastage.toFixed(2)} <span style="font-size:10px; font-weight:600; color:#64748B;">KG</span>
-            </span>
-          </div>
-          <div class="stock-stat-item" style="grid-column: span 2;">
-            <span class="stock-stat-label">Closing Stock</span>
-            <span class="stock-stat-val closing">
-              ${status.closing.toFixed(2)} <span style="font-size:11px; font-weight:700;">KG</span>
-            </span>
-          </div>
-        </div>
-
-        <!-- Packing breakdown chips -->
-        <div class="pack-breakdown-row">
-          ${
-            hasPacking
-              ? `
-            ${status.p100 > 0 ? `<span class="pack-chip">100g: <strong>${status.p100}</strong></span>` : ""}
-            ${status.p200 > 0 ? `<span class="pack-chip">200g: <strong>${status.p200}</strong></span>` : ""}
-            ${status.p500 > 0 ? `<span class="pack-chip">500g: <strong>${status.p500}</strong></span>` : ""}
-            ${status.p1000 > 0 ? `<span class="pack-chip">1kg: <strong>${status.p1000}</strong></span>` : ""}
-          `
-              : `<span class="pack-chip empty">No packing done today</span>`
-          }
-        </div>
-
-        <div class="card-footer-actions">
-          <button class="btn btn-primary btn-sm btn-card-pack" data-product-id="${p.id}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            ${status.hasEntry ? "Edit Entry" : "+ Log Packing"}
-          </button>
-          <button class="btn btn-secondary btn-sm btn-card-history" data-product-id="${p.id}" title="View chronological batches">
-            History
-          </button>
-        </div>
-      </div>
+        </td>
+      </tr>
     `;
   }).join("");
 
-  dom.productsCardsGrid.innerHTML = cardsHtml || `<div style="grid-column:1/-1; padding:40px; text-align:center; color:#94A3B8;">No products matching "${searchQuery}"</div>`;
+  dom.dashboardStockTbody.innerHTML = rowsHtml || `
+    <tr>
+      <td colspan="10" style="text-align:center; padding:36px; color:#94A3B8;">
+        No products matching "${searchQuery}"
+      </td>
+    </tr>
+  `;
 
-  // Update KPI displays
-  dom.kpiTodayInward.innerHTML = `${todayInwardTotal.toFixed(2)} <span style="font-size:14px; font-weight:600;">KG</span>`;
-  dom.kpiTodayPacked.innerHTML = `${todayPackedTotal.toFixed(2)} <span style="font-size:14px; font-weight:600;">KG</span>`;
-  dom.kpiTodayPcs.textContent = `${todayPcsTotal} total packets packed`;
-  dom.kpiTodayWastage.innerHTML = `${todayWastageTotal.toFixed(2)} <span style="font-size:14px; font-weight:600;">KG</span>`;
-  dom.kpiTotalClosing.innerHTML = `${totalClosingSum.toFixed(2)} <span style="font-size:14px; font-weight:600;">KG</span>`;
+  // Update summary strip displays
+  dom.kpiTodayInward.textContent = `${todayInwardTotal.toFixed(2)} KG`;
+  dom.kpiTodayPacked.textContent = `${todayPackedTotal.toFixed(2)} KG`;
+  dom.kpiTodayPcs.textContent = `(${todayPcsTotal} pcs)`;
+  dom.kpiTodayWastage.textContent = `${todayWastageTotal.toFixed(2)} KG`;
+  dom.kpiTotalClosing.textContent = `${totalClosingSum.toFixed(2)} KG`;
 
-  // Attach card button listeners
-  dom.productsCardsGrid.querySelectorAll(".btn-card-pack").forEach((btn) => {
+  // Attach row button listeners
+  dom.dashboardStockTbody.querySelectorAll(".btn-row-pack").forEach((btn) => {
     btn.addEventListener("click", () => openEntryModal(btn.dataset.productId));
   });
-  dom.productsCardsGrid.querySelectorAll(".btn-card-history").forEach((btn) => {
+  dom.dashboardStockTbody.querySelectorAll(".btn-row-history").forEach((btn) => {
     btn.addEventListener("click", () => openHistoryModal(btn.dataset.productId));
   });
 }

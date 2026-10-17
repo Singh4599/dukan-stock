@@ -371,6 +371,55 @@ body {
   flex: 1;
 }
 
+/* ── COMPACT SUMMARY STRIP ── */
+.summary-strip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.summary-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.summary-pill:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.summary-pill .sp-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.summary-pill .sp-val {
+  font-weight: 800;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.summary-pill .sp-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.summary-pill.blue .sp-val { color: #2563EB; }
+.summary-pill.green .sp-val { color: #059669; }
+.summary-pill.amber .sp-val { color: #D97706; }
+.summary-pill.purple .sp-val { color: var(--brand-primary); }
+
 /* ── KPI METRICS CARDS ── */
 .kpi-grid {
   display: grid;

@@ -88,82 +88,77 @@
       <!-- CONTENT BODY -->
       <main class="content-body">
         
-        <!-- ── VIEW 1: OVERVIEW DASHBOARD ── -->
+        <!-- ── VIEW 1: DAILY STOCK DASHBOARD (CLEAN TABLE VIEW) ── -->
         <section id="view-dashboard" class="app-view">
           
-          <!-- KPI ROW (CLEAN ENGLISH) -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-icon crimson">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-              </div>
-              <div class="kpi-details">
-                <span class="kpi-label">Total Products</span>
-                <span class="kpi-value">28</span>
-                <span class="kpi-sub">Dukan Spices Catalog</span>
-              </div>
+          <!-- SUMMARY METRICS STRIP -->
+          <div class="summary-strip">
+            <div class="summary-pill">
+              <span class="sp-label">Total Spices:</span>
+              <span class="sp-val">28 Items</span>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon blue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              </div>
-              <div class="kpi-details">
-                <span class="kpi-label">New Stock Received (Inward)</span>
-                <span class="kpi-value" id="kpi-today-inward">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">Raw spice bags received today</span>
-              </div>
+            <div class="summary-pill blue">
+              <span class="sp-label">Today Inward:</span>
+              <span class="sp-val" id="kpi-today-inward">0.00 KG</span>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon green">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="kpi-details">
-                <span class="kpi-label">Packed Today</span>
-                <span class="kpi-value" id="kpi-today-packed">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub" id="kpi-today-pcs">0 packets packed today</span>
-              </div>
+            <div class="summary-pill green">
+              <span class="sp-label">Packed Today:</span>
+              <span class="sp-val" id="kpi-today-packed">0.00 KG</span>
+              <span class="sp-sub" id="kpi-today-pcs">(0 pcs)</span>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon amber">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </div>
-              <div class="kpi-details">
-                <span class="kpi-label">Wastage / Loss</span>
-                <span class="kpi-value" id="kpi-today-wastage">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">Spillage & packing loss</span>
-              </div>
+            <div class="summary-pill amber">
+              <span class="sp-label">Wastage / Loss:</span>
+              <span class="sp-val" id="kpi-today-wastage">0.00 KG</span>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon purple">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              </div>
-              <div class="kpi-details">
-                <span class="kpi-label">Total Stock Remaining</span>
-                <span class="kpi-value" id="kpi-total-closing">0.00 <span style="font-size:14px; font-weight:600;">KG</span></span>
-                <span class="kpi-sub">Total closing balance sum</span>
-              </div>
+            <div class="summary-pill purple">
+              <span class="sp-label">Total Stock Remaining:</span>
+              <span class="sp-val" id="kpi-total-closing">0.00 KG</span>
             </div>
           </div>
 
-          <!-- TOOLBAR: SEARCH & CATEGORY CHIPS -->
-          <div class="toolbar-wrap">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="search-products-input" class="search-input" placeholder="Search by spice name or batch code (e.g. Turmeric, GTP-1026)..." />
+          <!-- MAIN DAILY STOCK TABLE CARD -->
+          <div class="table-card">
+            <div class="table-header-bar">
+              <div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Daily Stock & Packaging Overview</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Overview of all 28 spice products for the selected date</p>
+              </div>
+
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <div class="search-box" style="min-width:260px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="search-products-input" class="search-input" placeholder="Search by spice name or batch code..." />
+                </div>
+              </div>
             </div>
 
-            <div class="category-chips" id="category-chips-wrap">
+            <!-- Category Filter Chips -->
+            <div class="category-chips" id="category-chips-wrap" style="padding: 10px 20px; border-bottom: 1px solid var(--border-light); background: #FAFBFD;">
               <!-- Rendered via JS -->
             </div>
-          </div>
 
-          <!-- PRODUCT CARDS GRID -->
-          <div class="products-grid" id="products-cards-grid">
-            <!-- Rendered dynamically via JS -->
+            <!-- Table of 28 Products -->
+            <div class="table-responsive">
+              <table class="excel-table" id="dashboard-stock-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Spice Product Name</th>
+                    <th>Batch Code</th>
+                    <th>Category</th>
+                    <th class="num-cell">Opening (KG)</th>
+                    <th class="num-cell">Inward (KG)</th>
+                    <th class="num-cell">Packed Today (KG)</th>
+                    <th class="num-cell">Wastage (KG)</th>
+                    <th class="num-cell closing-highlight">Closing Stock (KG)</th>
+                    <th>Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-stock-tbody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
