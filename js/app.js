@@ -619,6 +619,35 @@ function exportLedgerToExcel() {
     };
   });
 
+  const sumInward = filtered.reduce((s, e) => s + (Number(e.inwardQty) || 0), 0);
+  const sumP100 = filtered.reduce((s, e) => s + (Number(e.p100) || 0), 0);
+  const sumP200 = filtered.reduce((s, e) => s + (Number(e.p200) || 0), 0);
+  const sumP500 = filtered.reduce((s, e) => s + (Number(e.p500) || 0), 0);
+  const sumP1000 = filtered.reduce((s, e) => s + (Number(e.p1000) || 0), 0);
+  const sumPacked = filtered.reduce((s, e) => s + (Number(e.totalPacked) || 0), 0);
+  const sumWastage = filtered.reduce((s, e) => s + (Number(e.wastage) || 0), 0);
+  const sumClosing = filtered.reduce((s, e) => s + (Number(e.closingBalance) || 0), 0);
+
+  sheetData.push({
+    "S.No": "TOTAL",
+    "Date": "",
+    "Product Name": "TOTAL SUMMARY",
+    "Opening Balance / Carry Forward (KG)": "",
+    "Source (Cold Storage / Market)": "",
+    "Supplier Batch / Lot No.": "",
+    "Inward Quantity (KG)": Number(sumInward.toFixed(2)),
+    "100g Packing (Pcs)": sumP100,
+    "200g Packing (Pcs)": sumP200,
+    "500g Packing (Pcs)": sumP500,
+    "1kg Packing (Pcs)": sumP1000,
+    "Total Packed (KG)": Number(sumPacked.toFixed(2)),
+    "Wastage (KG)": Number(sumWastage.toFixed(2)),
+    "Closing Balance (KG)": Number(sumClosing.toFixed(2)),
+    "Packed By – Name & Signature": "",
+    "Checked By – Name & Signature": "",
+    "Remarks": `TOTAL PACKED: ${sumPacked.toFixed(2)} KG`
+  });
+
   const ws = XLSX.utils.json_to_sheet(sheetData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Dukan_Stock_Register");
@@ -657,6 +686,34 @@ function exportSingleProductExcel() {
     "Checked By": e.checkedBy || "",
     "Remarks": e.remarks || ""
   }));
+
+  const sumInward = prodEntries.reduce((s, e) => s + (Number(e.inwardQty) || 0), 0);
+  const sumP100 = prodEntries.reduce((s, e) => s + (Number(e.p100) || 0), 0);
+  const sumP200 = prodEntries.reduce((s, e) => s + (Number(e.p200) || 0), 0);
+  const sumP500 = prodEntries.reduce((s, e) => s + (Number(e.p500) || 0), 0);
+  const sumP1000 = prodEntries.reduce((s, e) => s + (Number(e.p1000) || 0), 0);
+  const sumPacked = prodEntries.reduce((s, e) => s + (Number(e.totalPacked) || 0), 0);
+  const sumWastage = prodEntries.reduce((s, e) => s + (Number(e.wastage) || 0), 0);
+
+  sheetData.push({
+    "S.No": "TOTAL",
+    "Date": "",
+    "Product Name": "TOTAL SUMMARY",
+    "Opening Balance (KG)": "",
+    "Source": "",
+    "Supplier Batch / Lot": "",
+    "Inward (KG)": Number(sumInward.toFixed(2)),
+    "100g (Pcs)": sumP100,
+    "200g (Pcs)": sumP200,
+    "500g (Pcs)": sumP500,
+    "1kg (Pcs)": sumP1000,
+    "Total Packed (KG)": Number(sumPacked.toFixed(2)),
+    "Wastage (KG)": Number(sumWastage.toFixed(2)),
+    "Closing Balance (KG)": "",
+    "Packed By": "",
+    "Checked By": "",
+    "Remarks": `TOTAL PACKED: ${sumPacked.toFixed(2)} KG`
+  });
 
   const ws = XLSX.utils.json_to_sheet(sheetData);
   const wb = XLSX.utils.book_new();
