@@ -1108,3 +1108,69 @@ body {
     display: none;
   }
 }
+
+/* ── LABEL STUDIO LIVE SYNC PILL ── */
+.label-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #065F46;
+  white-space: nowrap;
+}
+
+.label-sync-pill.offline,
+.label-sync-pill.disconnected {
+  background: #FEF2F2;
+  border-color: #FECACA;
+  color: #991B1B;
+}
+
+.label-sync-pill.offline .live-dot,
+.label-sync-pill.disconnected .live-dot {
+  background: #EF4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.label-sync-pill.syncing .sync-refresh-btn {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-refresh-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: inherit;
+  padding: 0 2px;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.sync-refresh-btn:hover {
+  transform: rotate(180deg);
+}
+
+.label-packed-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+}
+

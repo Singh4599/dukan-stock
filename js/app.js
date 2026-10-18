@@ -4,6 +4,12 @@
 
 import { DUKAN_PRODUCTS, CATEGORIES, getProductById } from "./products.js";
 import { saveEntry, deleteEntry, subscribeToEntries, getAutoCarryForward } from "./firebase.js";
+import {
+  initLabelSync,
+  subscribeToLabelSync,
+  getLabelPackedStats,
+  getLabelSyncStatus
+} from "./label-sync.js";
 
 // ── APP STATE ──
 let currentDate = getTodayStr();
@@ -33,10 +39,13 @@ const dom = {
   datePickerHidden: document.getElementById("date-picker-hidden"),
   btnJumpToday: document.getElementById("btn-jump-today"),
 
-  // Topbar Actions
+  // Topbar Actions & Sync Pill
   btnExportExcel: document.getElementById("btn-export-excel"),
   btnOpenNewEntry: document.getElementById("btn-open-new-entry"),
   mobQuickAddBtn: document.getElementById("mob-quick-add-btn"),
+  labelSyncPill: document.getElementById("label-sync-pill"),
+  labelSyncStatusText: document.getElementById("label-sync-status-text"),
+  btnRefreshLabels: document.getElementById("btn-refresh-labels"),
 
   // KPI Elements
   kpiTodayInward: document.getElementById("kpi-today-inward"),
@@ -172,49 +181,85 @@ function calculateMetrics({ opening, inward, p100, p200, p500, p1000, wastage })
 function getProductStatusForDate(productId, dateStr) {
   const prod = getProductById(productId);
   const existingEntry = allEntries.find((e) => e.productId === productId && e.date === dateStr);
+  const labelStats = getLabelPackedStats(prod, dateStr);
 
   if (existingEntry) {
+    const hasManualPacking =
+      (Number(existingEntry.p100) || 0) > 0 ||
+      (Number(existingEntry.p200) || 0) > 0 ||
+      (Number(existingEntry.p500) || 0) > 0 ||
+      (Number(existingEntry.p1000) || 0) > 0 ||
+      (Number(existingEntry.totalPacked) || 0) > 0;
+
+    const p100 = hasManualPacking ? (Number(existingEntry.p100) || 0) : (labelStats.p100 || 0);
+    const p200 = hasManualPacking ? (Number(existingEntry.p200) || 0) : (labelStats.p200 || 0);
+    const p500 = hasManualPacking ? (Number(existingEntry.p500) || 0) : (labelStats.p500 || 0);
+    const p1000 = hasManualPacking ? (Number(existingEntry.p1000) || 0) : (labelStats.p1000 || 0);
+    const totalPacked = hasManualPacking ? (Number(existingEntry.totalPacked) || 0) : (labelStats.totalPackedKg || 0);
+    const isAuto = !hasManualPacking && labelStats.totalPackedKg > 0;
+
+    const opening = Number(existingEntry.openingBalance) || 0;
+    const inward = Number(existingEntry.inwardQty) || 0;
+    const wastage = Number(existingEntry.wastage) || 0;
+    const closing = isAuto
+      ? Math.max(0, Math.round((opening + inward - totalPacked - wastage) * 100) / 100)
+      : (Number(existingEntry.closingBalance) || 0);
+
     return {
       product: prod,
       hasEntry: true,
       entry: existingEntry,
-      opening: Number(existingEntry.openingBalance) || 0,
-      inward: Number(existingEntry.inwardQty) || 0,
-      p100: Number(existingEntry.p100) || 0,
-      p200: Number(existingEntry.p200) || 0,
-      p500: Number(existingEntry.p500) || 0,
-      p1000: Number(existingEntry.p1000) || 0,
-      totalPacked: Number(existingEntry.totalPacked) || 0,
-      wastage: Number(existingEntry.wastage) || 0,
-      closing: Number(existingEntry.closingBalance) || 0,
+      opening,
+      inward,
+      p100,
+      p200,
+      p500,
+      p1000,
+      totalPacked,
+      wastage,
+      closing,
       batchNo: existingEntry.batchNo || prod.batchCode,
       source: existingEntry.source || "Cold Storage",
       packedBy: existingEntry.packedBy || "-",
       checkedBy: existingEntry.checkedBy || "-",
+      isAutoFromLabels: isAuto,
+      labelPrintsCount: labelStats.printBatchesCount,
     };
   }
 
   // No entry yet on this date: auto carry-forward from previous closing!
   const cf = getAutoCarryForward(allEntries, productId, dateStr);
   const opening = cf.openingBalance;
+
+  // Check if labels were printed today for this product in Label Studio!
+  const isAuto = labelStats.totalPackedKg > 0;
+  const p100 = labelStats.p100 || 0;
+  const p200 = labelStats.p200 || 0;
+  const p500 = labelStats.p500 || 0;
+  const p1000 = labelStats.p1000 || 0;
+  const totalPacked = labelStats.totalPackedKg || 0;
+  const closing = Math.max(0, Math.round((opening - totalPacked) * 100) / 100);
+
   return {
     product: prod,
     hasEntry: false,
     entry: null,
     opening,
     inward: 0,
-    p100: 0,
-    p200: 0,
-    p500: 0,
-    p1000: 0,
-    totalPacked: 0,
+    p100,
+    p200,
+    p500,
+    p1000,
+    totalPacked,
     wastage: 0,
-    closing: opening,
+    closing,
     batchNo: prod.batchCode,
     source: "Cold Storage",
     packedBy: "-",
     checkedBy: "-",
     carriedFromDate: cf.fromDate,
+    isAutoFromLabels: isAuto,
+    labelPrintsCount: labelStats.printBatchesCount,
   };
 }
 
@@ -241,7 +286,7 @@ function renderDashboard() {
     const status = getProductStatusForDate(p.id, currentDate);
 
     // Sum overall totals across all 28 products for this date
-    if (status.hasEntry) {
+    if (status.hasEntry || status.isAutoFromLabels) {
       todayInwardTotal += status.inward;
       todayPackedTotal += status.totalPacked;
       todayPcsTotal += status.p100 + status.p200 + status.p500 + status.p1000;
@@ -257,6 +302,10 @@ function renderDashboard() {
           status.p500 > 0 ? `500g:${status.p500}` : "",
           status.p1000 > 0 ? `1kg:${status.p1000}` : ""
         ].filter(Boolean).join(" • ")
+      : "";
+
+    const labelSyncBadge = status.isAutoFromLabels
+      ? `<span class="label-packed-tag" title="Auto-deducted from Label Studio Dukan Bai prints">⚡ Dukan Bai (${status.labelPrintsCount || 1} prints)</span>`
       : "";
 
     return `
@@ -276,6 +325,7 @@ function renderDashboard() {
         <td class="num-cell" style="color:${status.totalPacked > 0 ? "#059669" : "inherit"}; font-weight:${status.totalPacked > 0 ? "700" : "500"};">
           <div>${status.totalPacked > 0 ? "-" : ""}${status.totalPacked.toFixed(2)}</div>
           ${packBreakdownStr ? `<div style="font-size:10.5px; color:#16A34A; font-weight:600;">${packBreakdownStr}</div>` : ""}
+          ${labelSyncBadge}
         </td>
         <td class="num-cell" style="color:${status.wastage > 0 ? "#DC2626" : "inherit"};">
           ${status.wastage.toFixed(2)}
@@ -286,7 +336,7 @@ function renderDashboard() {
         <td>
           <div style="display:flex; gap:6px;">
             <button class="btn btn-primary btn-sm btn-row-pack" data-product-id="${p.id}">
-              ${status.hasEntry ? "Edit Entry" : "+ Log Packing"}
+              ${status.hasEntry ? "Edit Entry" : (status.isAutoFromLabels ? "Confirm Packed" : "+ Log Packing")}
             </button>
             <button class="btn btn-secondary btn-sm btn-row-history" data-product-id="${p.id}" title="View chronological batches">
               History
@@ -433,10 +483,20 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
     dom.formSourceSelect.value = existingEntry.source || "Cold Storage";
     dom.formBatchInput.value = existingEntry.batchNo || "";
     dom.formInwardInput.value = existingEntry.inwardQty || 0;
-    dom.formP100Input.value = existingEntry.p100 || 0;
-    dom.formP200Input.value = existingEntry.p200 || 0;
-    dom.formP500Input.value = existingEntry.p500 || 0;
-    dom.formP1000Input.value = existingEntry.p1000 || 0;
+
+    const prod = getProductById(existingEntry.productId);
+    const labelStats = getLabelPackedStats(prod, existingEntry.date);
+    const hasManual =
+      (Number(existingEntry.p100) || 0) > 0 ||
+      (Number(existingEntry.p200) || 0) > 0 ||
+      (Number(existingEntry.p500) || 0) > 0 ||
+      (Number(existingEntry.p1000) || 0) > 0 ||
+      (Number(existingEntry.totalPacked) || 0) > 0;
+
+    dom.formP100Input.value = hasManual ? (existingEntry.p100 || 0) : (labelStats.p100 || 0);
+    dom.formP200Input.value = hasManual ? (existingEntry.p200 || 0) : (labelStats.p200 || 0);
+    dom.formP500Input.value = hasManual ? (existingEntry.p500 || 0) : (labelStats.p500 || 0);
+    dom.formP1000Input.value = hasManual ? (existingEntry.p1000 || 0) : (labelStats.p1000 || 0);
     dom.formWastageInput.value = existingEntry.wastage || 0;
     dom.formPackedByInput.value = existingEntry.packedBy || "";
     dom.formCheckedByInput.value = existingEntry.checkedBy || "";
@@ -477,10 +537,26 @@ function handleProductOrDateChange() {
     dom.formBatchInput.value = prod.batchCode;
   }
 
+  // Check if Label Studio has printed packaging records for this product and date
+  const labelStats = getLabelPackedStats(prod, targetDate);
+  const currentP100 = Number(dom.formP100Input.value) || 0;
+  const currentP200 = Number(dom.formP200Input.value) || 0;
+  const currentP500 = Number(dom.formP500Input.value) || 0;
+  const currentP1000 = Number(dom.formP1000Input.value) || 0;
+
+  if (currentP100 === 0 && currentP200 === 0 && currentP500 === 0 && currentP1000 === 0 && labelStats.totalPackedKg > 0) {
+    dom.formP100Input.value = labelStats.p100;
+    dom.formP200Input.value = labelStats.p200;
+    dom.formP500Input.value = labelStats.p500;
+    dom.formP1000Input.value = labelStats.p1000;
+  }
+
   if (!isOpeningOverridden) {
     const cf = getAutoCarryForward(allEntries, productId, targetDate);
     dom.formOpeningInput.value = cf.openingBalance.toFixed(2);
-    if (cf.fromDate) {
+    if (labelStats.totalPackedKg > 0) {
+      dom.cfStatusLabel.textContent = `🔄 Auto-carried forward (${cf.openingBalance.toFixed(2)} KG) • ⚡ Auto-filled ${labelStats.totalPackedKg.toFixed(2)} KG from Dukan Bai prints`;
+    } else if (cf.fromDate) {
       dom.cfStatusLabel.textContent = `🔄 Auto-carried forward from ${cf.fromDate} closing stock (${cf.openingBalance.toFixed(2)} KG)`;
     } else {
       dom.cfStatusLabel.textContent = `🌱 Initial opening stock (0.00 KG) - click 'Change' to edit`;
@@ -975,6 +1051,35 @@ function init() {
       openHistoryModal(historyProductId);
     }
   });
+
+  // Initialize Label Studio Cloud synchronization (Strictly Dukan Bai prints)
+  initLabelSync();
+  subscribeToLabelSync((data) => {
+    if (dom.labelSyncPill && dom.labelSyncStatusText) {
+      if (data.connected) {
+        dom.labelSyncPill.classList.remove("syncing", "disconnected", "offline");
+        dom.labelSyncStatusText.textContent = `Dukan Bai: Live (${data.totalCount} prints)`;
+      } else {
+        dom.labelSyncPill.classList.add("disconnected");
+        dom.labelSyncStatusText.textContent = "Dukan Bai: Offline";
+      }
+    }
+    // Re-render dashboard to reflect newly synced print counts
+    renderDashboard();
+  });
+
+  if (dom.btnRefreshLabels) {
+    dom.btnRefreshLabels.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dom.labelSyncPill?.classList.add("syncing");
+      initLabelSync();
+      setTimeout(() => {
+        dom.labelSyncPill?.classList.remove("syncing");
+        showToast("Refreshed Label Studio print records!", "info");
+        renderDashboard();
+      }, 600);
+    });
+  }
 }
 
 // Boot app on DOM ready
