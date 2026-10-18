@@ -270,12 +270,9 @@
           <div class="form-group">
             <label class="form-label">Source *</label>
             <select id="form-source-select" class="form-select" required>
-              <option value="Cold Storage">Cold Storage</option>
               <option value="Market">Market</option>
-              <option value="Direct Supplier">Direct Supplier</option>
-              <option value="Warehouse Inward">Warehouse Inward</option>
-              <option value="Factory Transfer">Factory Transfer</option>
-              <option value="Other">Other</option>
+              <option value="Mill">Mill</option>
+              <option value="Cold Storage">Cold Storage</option>
             </select>
           </div>
 
@@ -325,7 +322,10 @@
 
         <!-- ROW 5: Wastage -->
         <div class="form-group">
-          <label class="form-label">Wastage / Loss (KG)</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label class="form-label" style="margin-bottom:0;">Wastage / Loss (KG) <span style="font-size:11px; color:#D97706; font-weight:700;">(Fixed 5%)</span></label>
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;" id="wastage-auto-hint">Auto-calculated: 5% of packed</span>
+          </div>
           <input type="number" step="0.01" min="0" id="form-wastage-input" class="form-input" placeholder="0.00" value="0" />
         </div>
 

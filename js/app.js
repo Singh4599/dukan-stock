@@ -20,6 +20,7 @@ let currentView = "dashboard";
 let editingEntryId = null;
 let historyProductId = null;
 let isOpeningOverridden = false;
+let isWastageOverridden = false;
 
 // ── DOM ELEMENTS CACHE ──
 const dom = {
@@ -200,7 +201,11 @@ function getProductStatusForDate(productId, dateStr) {
 
     const opening = Number(existingEntry.openingBalance) || 0;
     const inward = Number(existingEntry.inwardQty) || 0;
-    const wastage = Number(existingEntry.wastage) || 0;
+    const wastage = isAuto
+      ? Math.round(totalPacked * 0.05 * 100) / 100
+      : (existingEntry.wastage !== undefined && existingEntry.wastage !== null && Number(existingEntry.wastage) > 0
+          ? Number(existingEntry.wastage)
+          : (totalPacked > 0 ? Math.round(totalPacked * 0.05 * 100) / 100 : 0));
     const closing = isAuto
       ? Math.max(0, Math.round((opening + inward - totalPacked - wastage) * 100) / 100)
       : (Number(existingEntry.closingBalance) || 0);
@@ -219,7 +224,7 @@ function getProductStatusForDate(productId, dateStr) {
       wastage,
       closing,
       batchNo: existingEntry.batchNo || prod.batchCode,
-      source: existingEntry.source || "Cold Storage",
+      source: existingEntry.source || "Market",
       packedBy: existingEntry.packedBy || "-",
       checkedBy: existingEntry.checkedBy || "-",
       isAutoFromLabels: isAuto,
@@ -238,7 +243,8 @@ function getProductStatusForDate(productId, dateStr) {
   const p500 = labelStats.p500 || 0;
   const p1000 = labelStats.p1000 || 0;
   const totalPacked = labelStats.totalPackedKg || 0;
-  const closing = Math.max(0, Math.round((opening - totalPacked) * 100) / 100);
+  const wastage = isAuto ? Math.round(totalPacked * 0.05 * 100) / 100 : 0;
+  const closing = Math.max(0, Math.round((opening - totalPacked - wastage) * 100) / 100);
 
   return {
     product: prod,
@@ -251,10 +257,10 @@ function getProductStatusForDate(productId, dateStr) {
     p500,
     p1000,
     totalPacked,
-    wastage: 0,
+    wastage,
     closing,
     batchNo: prod.batchCode,
-    source: "Cold Storage",
+    source: "Market",
     packedBy: "-",
     checkedBy: "-",
     carriedFromDate: cf.fromDate,
@@ -469,6 +475,7 @@ function renderMasterLedger() {
 function openEntryModal(preselectedProductId = null, existingEntry = null) {
   dom.entryForm.reset();
   isOpeningOverridden = false;
+  isWastageOverridden = false;
   dom.formOpeningInput.readOnly = true;
   dom.btnToggleOverrideOpening.textContent = "Override";
 
@@ -480,7 +487,7 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
     dom.formDateInput.value = existingEntry.date;
     dom.formOpeningInput.value = existingEntry.openingBalance;
     dom.cfStatusLabel.textContent = "Recorded opening stock for this date";
-    dom.formSourceSelect.value = existingEntry.source || "Cold Storage";
+    dom.formSourceSelect.value = existingEntry.source || "Market";
     dom.formBatchInput.value = existingEntry.batchNo || "";
     dom.formInwardInput.value = existingEntry.inwardQty || 0;
 
@@ -497,7 +504,17 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
     dom.formP200Input.value = hasManual ? (existingEntry.p200 || 0) : (labelStats.p200 || 0);
     dom.formP500Input.value = hasManual ? (existingEntry.p500 || 0) : (labelStats.p500 || 0);
     dom.formP1000Input.value = hasManual ? (existingEntry.p1000 || 0) : (labelStats.p1000 || 0);
-    dom.formWastageInput.value = existingEntry.wastage || 0;
+
+    const initialPacked = hasManual ? (Number(existingEntry.totalPacked) || 0) : (labelStats.totalPackedKg || 0);
+    if (existingEntry.wastage !== undefined && existingEntry.wastage !== null && Number(existingEntry.wastage) > 0) {
+      dom.formWastageInput.value = Number(existingEntry.wastage).toFixed(2);
+      isWastageOverridden = true;
+    } else {
+      isWastageOverridden = false;
+      const autoWst = Math.round(initialPacked * 0.05 * 100) / 100;
+      dom.formWastageInput.value = autoWst > 0 ? autoWst.toFixed(2) : "0.00";
+    }
+
     dom.formPackedByInput.value = existingEntry.packedBy || "";
     dom.formCheckedByInput.value = existingEntry.checkedBy || "";
     dom.formRemarksInput.value = existingEntry.remarks || "";
@@ -506,6 +523,8 @@ function openEntryModal(preselectedProductId = null, existingEntry = null) {
     dom.entryId.value = "";
     dom.modalEntryTitle.textContent = "Add Daily Packing Entry";
     dom.formDateInput.value = currentDate;
+    dom.formSourceSelect.value = "Market";
+    dom.formWastageInput.value = "0.00";
 
     if (preselectedProductId) {
       dom.formProductSelect.value = preselectedProductId;
@@ -551,6 +570,12 @@ function handleProductOrDateChange() {
     dom.formP1000Input.value = labelStats.p1000;
   }
 
+  if (!isWastageOverridden) {
+    const totalPacked = labelStats.totalPackedKg > 0 ? labelStats.totalPackedKg : 0;
+    const autoWst = Math.round(totalPacked * 0.05 * 100) / 100;
+    dom.formWastageInput.value = autoWst > 0 ? autoWst.toFixed(2) : "0.00";
+  }
+
   if (!isOpeningOverridden) {
     const cf = getAutoCarryForward(allEntries, productId, targetDate);
     dom.formOpeningInput.value = cf.openingBalance.toFixed(2);
@@ -567,15 +592,27 @@ function handleProductOrDateChange() {
 }
 
 // Real-time calculation listener in form
-function updateLiveFormCalculation() {
+function updateLiveFormCalculation(fromWastageInput = false) {
   const opening = dom.formOpeningInput.value;
   const inward = dom.formInwardInput.value;
   const p100 = dom.formP100Input.value;
   const p200 = dom.formP200Input.value;
   const p500 = dom.formP500Input.value;
   const p1000 = dom.formP1000Input.value;
-  const wastage = dom.formWastageInput.value;
 
+  const q100 = Number(p100) || 0;
+  const q200 = Number(p200) || 0;
+  const q500 = Number(p500) || 0;
+  const q1000 = Number(p1000) || 0;
+  const totalPackedKg = (q100 * 0.1) + (q200 * 0.2) + (q500 * 0.5) + (q1000 * 1.0);
+
+  // Auto-calculate fixed 5% wastage on packed quantity unless user manually overrides
+  if (!isWastageOverridden && !fromWastageInput) {
+    const autoWastage = Math.round(totalPackedKg * 0.05 * 100) / 100;
+    dom.formWastageInput.value = autoWastage > 0 ? autoWastage.toFixed(2) : "0.00";
+  }
+
+  const wastage = dom.formWastageInput.value;
   const res = calculateMetrics({ opening, inward, p100, p200, p500, p1000, wastage });
 
   dom.labelKg100.textContent = `= ${res.kg100.toFixed(2)} KG`;
@@ -949,9 +986,13 @@ function init() {
     dom.formP200Input,
     dom.formP500Input,
     dom.formP1000Input,
-    dom.formWastageInput,
   ].forEach((input) => {
-    input.addEventListener("input", updateLiveFormCalculation);
+    input.addEventListener("input", () => updateLiveFormCalculation(false));
+  });
+
+  dom.formWastageInput.addEventListener("input", () => {
+    isWastageOverridden = true;
+    updateLiveFormCalculation(true);
   });
 
   // Opening Balance manual override toggle
